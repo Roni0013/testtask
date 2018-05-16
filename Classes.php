@@ -1,6 +1,6 @@
 <?php
 
-class myDatabase {
+abstract class myDatabase {
 
     protected $pdo;
 
@@ -15,6 +15,46 @@ class myDatabase {
 	$this->pdo->exec("SET CHARACTER SET 'utf8_default'");
 	// $this->pdo->exec("SET SESSION collation_connection = 'utf8_general_ci'");
     }
+	//общие методы для всех подклассов
+	//возвращает объект конретной модели
+	function find ($id) {
+		$this->selectPrep->execute([$id]);
+		$arr = $this->selectPrep()->fetch();
+		if (! is_array($arr)) {
+			return null;
+		}
+		$obj = $this->createObj($arr);
+		return ($obj);
+	}
+	//создание нужного объекта по конретной модели из асс. массива
+	function createObj (array $arr) {
+		$obj=$this->subCreateObj($arr);
+		return $obj;
+	}
+	// возвращает массив моделей
+	function findall () {
+		$query = "SELECT * FROM ".$this->tableName();
+		$arr = $this->pdo->query($query)->fetchall();
+		if (! is_array($arr)) {
+			return null;
+		}
+		foreach ($arr as $row) {
+			$resultArr[]= new $this->createObj($row);
+		}
+		return $resultArr;
+	}
+
+	function insert () {
+
+	}
+
+//подготовка запроса в конретном классе таблицы
+protected abstract function selectPrep ();
+//
+protected abstract function subCreateObj (array $arr);
+protected abstract function subInsert();
+abstract function tableName ();
+
 
 //    function getConnection () {
 //	return $this->pdo;
@@ -24,17 +64,33 @@ class myDatabase {
 //  класс для таблицы клиентов
 class clientTable extends myDatabase {
 
-    //найти всех клиентов
-    function findall() {
-	$query = "SELECT * FROM client";
-	return $this->pdo->query($query)->fetchAll();
-    }
+	function __construct()
+	{
+		parent::__construct();
+		
+		$this->selPrep=self::$pdo->prepare("SELECT * FROM ".$this->tableName()." WHERE id=?");  
+		
+	}
+	
+	function selectPrep () {
+		return $this->selPrep;
+	}
+
+	function subCreateObj ($arr) {
+		$clientObj = new ClientModel ();
+		$clientObj->setAttributes ($arr);
+		return $clientObj;
+	}
+
+	function tableName () {
+		return 'client';
+	}
 
     //изменение карточки
     function updateClient(ClientModel $clienObj) {
-	$query = "UPDATE client SET name=:name WHERE id=:id";
+	$query = "UPDATE client SET Name=:Name,Surname=:Surname,Fname=:Fname,Birthday=:Birthday,Sex=:Sex WHERE id=:id";
 	$prep = $this->pdo->prepare($query);
-	$prep->execute([':id' => $clienObj->id, ':name' => $clienObj->name]);
+	$prep->execute([':id' => $clienObj->id, ':Name' => $clienObj->name,':Surname'=>$clienObj->Surname,':Birthday'=>$clienObj->Birthday, ':Sex'=>$clientObj->Sex]);
     }
 
     //удаление клиента
@@ -147,12 +203,19 @@ class ClientModel {
 
     //заполнение объекта
     function setAttributes(array $data) {
-	foreach ($data as $key => $value) {
-	    if (property_exists('ClientModel', $key))
-		$this->{$key} = $value;
-	}
+		foreach ($data as $key => $value) {
+			if (property_exists('ClientModel', $key))
+			$this->{$key} = $value;
+		}
     }
-
+	//вставка одного свойства (вывести в абстракт)
+	function setAttribute ($nameAttr, $value) {
+		if (property_exists('ClientModel',$nameAttr)) {
+			$this->{$nameAttr} = $value;
+			return true;
+		}
+		return false;
+	}
     //
 }
 
