@@ -4,7 +4,8 @@
 
 <html>
     <head>
-        <meta charset="UTF-8">
+		
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>Клиенты</title>
     </head>
     <body>
@@ -14,44 +15,36 @@
     require_once  "Classes.php";
 
     $request = $_GET;
-//    print_r($request);
-    $client=new clientTable();
-    $phone=new phone();
+    $clientTab=new clientTable();
+    $phoneTab=new phoneTable();
 	if (isset($request['action'])) {
 		if ($request['action']=='add') {
 			$clientMod = new ClientModel();
 			$phoneMod = new PhoneModel();
+			
 			$clientMod->setAttributes($request);
-			$client->addClient($clientMod);
 			
-			$phoneMod->id_client=$client->findLastUpdate();
-			
-			if (isset ($request['phone1']))  {
+			$clientTab->insert($clientMod);
+			// print_r ($);
+			$lastId=$clientTab->findLastUpdateId();
+			$phoneMod->id_client=$lastId;
+			// print_r ($phoneMod); 
+			if (isset ($request['phone1']) and !empty($request['phone1']))  {
 				$phoneMod->phone=$request['phone1'];
-				// print_r ($phoneMod);die;
-				$phone->addPhone($phoneMod);
+				print_r ($phoneMod);
+				$phoneTab->insert($phoneMod);
 			}
 			
-			if (isset ($request['phone2']))  {
+			if (isset ($request['phone2']) and !empty($request['phone2']))  {
 				$phoneMod->phone=$request['phone2'];
-				$phone->addPhone($phoneMod);
+				$phoneTab->insert($phoneMod);
 			}
-
-			
-			
-
 		} else if ($request['action']=='del') {
-			$client->delClient($request['id']);
-			$phone->delPhoneByClient($request['id']);
+			$clientTab->del($request['id']);
+			$phoneTab->delPhoneByClient($request['id']);
 		}
-		$allClients= $client->findall();
 	}
-
-//    print_r ($request);
-
-
-
-//    print_r ($allClients);
+	$allClients= $clientTab->findall();
 ?>
 
 
@@ -75,20 +68,20 @@
 	    <?php   //print_r ($client);     ?>
 	    <tr>
 		<td>
-		    <?php  print_r ($client['Surname']); ?>
+		    <?php  print_r ($client->Surname); ?>
 		</td>
 		<td>
-		    <?php  print_r ($client['Name']); ?>
+		    <?php  print_r ($client->Name); ?>
 		</td>
 		<td>
-		    <?php  print_r ($client['Fname']); ?>
+		    <?php  print_r ($client->Fname); ?>
 		</td>
 
 		<td>
-		    <a href="card.php?client_id=<?php    print_r( $client['id'])     ?> "> Подробнее
+		    <a href="card.php?client_id=<?php    print_r( $client->id)     ?> "> Подробнее
 		</td>
 		<td>
-		    <a href="index1.php?action=del&id= <?php  print_r ($client['id']) ?>  ">   Удалить  </a>
+		    <a href="index1.php?action=del&id= <?php  print_r ($client->id) ?>  ">   Удалить  </a>
 		</td>
 
 

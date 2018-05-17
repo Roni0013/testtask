@@ -1,9 +1,5 @@
 <!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
+
 <html>
     <head>
         <meta charset="UTF-8">
@@ -12,15 +8,12 @@ and open the template in the editor.
     <body>
 	<?php
 	    $request = $_GET;
-//	    print_r ($request);
-	   require_once  "Classes.php";
-	    $clientObj=new clientTable();
-		$phoneObj = new PhoneModel();
-		$phoneTable = new phone();
-	    $client = $clientObj->findOne($request['client_id']);
-	    // $phones= $phoneObj->findall($request['client_id']);
-		$phones= $phoneTable->findall($request['client_id']);
-		// print_r ($request['client_id']);
+	    require_once  "Classes.php";
+	    $clientTab=new clientTable();
+		$phoneMod = new phoneModel();
+		$phoneTab = new phoneTable();
+		$oneClient = $clientTab->findOne($request['client_id']);
+		$phones= $phoneTab->findByClient($request['client_id']);
 	?>
 
 	<a href="index1.php" > Главная </a>
@@ -31,7 +24,7 @@ and open the template in the editor.
 		    Фамилия
 		</td>
 		<td>
-		    <?php    print_r ($client->Surname);   ?>
+		    <?php    print_r ($oneClient->Surname);   ?>
 		</td>
 	    </tr>
 	    <tr>
@@ -39,7 +32,7 @@ and open the template in the editor.
 		    Имя
 		</td>
 		<td>
-		    <?php    print_r ($client->Name);   ?>
+		    <?php    print_r ($oneClient->Name);   ?>
 		</td>
 	    </tr>
 	    <tr>
@@ -47,7 +40,7 @@ and open the template in the editor.
 		    Отчество
 		</td>
 		<td>
-		    <?php    print_r ($client->Fname);   ?>
+		    <?php    print_r ($oneClient->Fname);   ?>
 		</td>
 	    </tr>
 	    <tr>
@@ -55,7 +48,7 @@ and open the template in the editor.
 		    Дата рождения
 		</td>
 		<td>
-		    <?php    print_r ($client->Birthday);   ?>
+		    <?php    print_r ($oneClient->Birthday);   ?>
 		</td>
 	    </tr>
 	    <tr>
@@ -63,7 +56,7 @@ and open the template in the editor.
 		    Пол
 		</td>
 		<td>
-		    <?php    print_r ($client->Sex);   ?>
+		    <?php    print_r ($oneClient->Sex);   ?>
 		</td>
 	    </tr>
 	    <tr>
@@ -71,7 +64,7 @@ and open the template in the editor.
 		    Дата создания записи
 		</td>
 		<td>
-		    <?php    print_r ($client->CreateDate);   ?>
+		    <?php    print_r ($oneClient->CreateDate);   ?>
 		</td>
 	    </tr>
 	    <tr>
@@ -79,7 +72,7 @@ and open the template in the editor.
 		    Дата обновления записи
 		</td>
 		<td>
-		    <?php    print_r ($client->UpdateDate);   ?>
+		    <?php    print_r ($oneClient->UpdateDate);   ?>
 		</td>
 	    </tr>
 		
@@ -99,7 +92,7 @@ and open the template in the editor.
 		</table>
 
 	<a href="addclient.php"> Добавить клиента </a>
-	<a href="index1.php?action=del&id= <?php  print_r ($client->id) ?>  ">   Удалить клиента </a>
+	<a href="index1.php?action=del&id= <?php  print_r ($oneClient->id) ?>  ">   Удалить клиента </a>
 	
     </body>
 </html>
